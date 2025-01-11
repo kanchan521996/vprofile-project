@@ -55,6 +55,13 @@ pipeline {
                     -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml'''
                 }
             }
-        } // <- Closing Sonar Analysis stage
-    } // <- Closing stages block
-} // <- Closing pipeline block
+        } 
+        stage("Quality Gate") {
+            steps {
+                timeout(time: 1 , unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+    } 
+}
