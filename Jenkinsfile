@@ -74,6 +74,19 @@ pipeline {
                 }
             }
         }
+        stage('Debug Nexus URL') {
+    steps {
+        script {
+            def artifact_version = "17-25-02-23_08-47" // Replace with dynamic value if needed
+            def artifact_name = "vproapp-${artifact_version}.war"
+            def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
+
+            echo "Generated Nexus URL: ${nexus_url}"
+            echo "Nexus User: ${NEXUS_USER}"
+            echo "Nexus Password: ${NEXUS_PASS}"
+        }
+    }
+}
 
         stage('Upload artifact') {
             steps {
