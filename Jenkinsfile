@@ -95,14 +95,19 @@ pipeline {
             }
         }
 
-   stage('Pull Artifact from Nexus & Push to GitHub') {
+  stage('Pull Artifact from Nexus & Push to GitHub') {
     steps {
         script {
             // Dynamically generate artifact version (replace colons and spaces with dashes)
-            def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}".replace(":", "-").replace(" ", "-")
+            def artifact_version = "17-25-02-23_08-47" // Replace with dynamic value if needed
             def artifact_name = "vproapp-${artifact_version}.war"
             def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
             def branch = "testing"
+
+            // Debugging: Print Nexus URL and credentials
+            echo "Generated Nexus URL: ${nexus_url}"
+            echo "Nexus User: ${NEXUS_USER}"
+            echo "Nexus Password: ${NEXUS_PASS}"
 
             // 1️⃣ Download the artifact from Nexus
             sh """
