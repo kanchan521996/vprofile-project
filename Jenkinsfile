@@ -93,6 +93,33 @@ pipeline {
      )
      }
        }
+       stage('Pull Artifact from Nexus & Push to GitHub') {
+    steps {
+        script {
+            // def nexus_url = "${NEXUSIP}:${NEXUSPORT}/QA/vproapp/17-25-02-23_08:47/**.war"
+            def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${env.BUILD_ID}-${env.BUILD_TIMESTAMP}/vproapp.war"
+
+            def artifact_name = "**.war"
+            def branch = "testing"
+
+            // 1️⃣ Download the artifact from Nexus
+            sh "wget --user=${NEXUS_USER} --password=${NEXUS_PASS} ${nexus_url} -O ${artifact_name}"
+
+            // 2️⃣ Setup Git & Push to GitHub Testing Branch
+            sh """
+                git config --global user.email "kanchannath819@gmail.com"
+                git config --global user.name "nath"
+                git checkout ${branch}
+                git pull origin ${branch}
+                mv ${artifact_name} .
+                git add ${artifact_name}
+                git commit -m "Pushed Nexus artifact to GitHub testing branch"
+                git push origin ${branch}
+            """
+        }
+    }
+}
+
      
     }
 }
