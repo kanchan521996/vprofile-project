@@ -26,7 +26,7 @@ pipeline {
             post {
                 success {
                     echo "Now Archiving."
-                    archiveArtifacts '**/*.war'  // ✅ Corrected
+                    archiveArtifacts '**/*.war'
                 }
             }
         }
@@ -70,60 +70,60 @@ pipeline {
                         -Dsonar.junit.reportsPath=target/surefire-reports/ \
                         -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                         -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
-                    '''  // ✅ Fixed export issue and removed extra backslash
+                    '''
                 }
             }
         }
-       stage('Upload artifact'){
-        steps{
+
+        stage('Upload artifact') {
+            steps {
                 nexusArtifactUploader(
-        nexusVersion: 'nexus3',
-        protocol: 'http',
-        nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
-        groupId: 'QA',
-        version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-        repository: "${RELEASE_REPO}",
-        credentialsId: "${NEXUS_LOGIN}",
-        artifacts: [
-            [artifactId: 'vproapp',
-             classifier: '',
-             file: 'target/vprofile-v2.war',
-             type: 'war']
-        ]
-     )
-     }
-       }
-
-stage('Pull Artifact from Nexus & Push to GitHub') {
-    steps {
-        script {
-            def artifact_version = "17-25-02-23_08:47" // 🔴 Update this dynamically if needed
-            def artifact_name = "vproapp-${artifact_version}.war"
-            def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
-            def branch = "testing"
-
-            // 1️⃣ Download the artifact from Nexus
-            sh "wget --user=${NEXUS_USER} --password=${NEXUS_PASS} \
-"http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/17-25-02-23_08:47/vproapp-17-25-02-23_08:47.war" \
--O vproapp-17-25-02-23_08:47.war
-"
-
-            // 2️⃣ Setup Git & Push to GitHub Testing Branch
-            sh """
-                git config --global user.email "kanchannath819@gmail.com"
-                git config --global user.name "nath"
-                git checkout ${branch}
-                git pull origin ${branch}
-                mv ${artifact_name} .
-                git add ${artifact_name}
-                git commit -m "Pushed Nexus artifact to GitHub testing branch"
-                git push origin ${branch}
-            """
+                    nexusVersion: 'nexus3',
+                    protocol: 'http',
+                    nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+                    groupId: 'QA',
+                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+                    repository: "${RELEASE_REPO}",
+                    credentialsId: "${NEXUS_LOGIN}",
+                    artifacts: [
+                        [artifactId: 'vproapp',
+                         classifier: '',
+                         file: 'target/vprofile-v2.war',
+                         type: 'war']
+                    ]
+                )
+            }
         }
-    }
-}
 
+        stage('Pull Artifact from Nexus & Push to GitHub') {
+            steps {
+                script {
+                    // Dynamically generate artifact version
+                    def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}"
+                    def artifact_name = "vproapp-${artifact_version}.war"
+                    def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
+                    def branch = "testing"
 
-     
+                    // 1️⃣ Download the artifact from Nexus
+                    sh """
+                        wget --user=${NEXUS_USER} --password=${NEXUS_PASS} \
+                        ${nexus_url} \
+                        -O ${artifact_name}
+                    """
+
+                    // 2️⃣ Setup Git & Push to GitHub Testing Branch
+                    sh """
+                        git config --global user.email "kanchannath819@gmail.com"
+                        git config --global user.name "nath"
+                        git checkout ${branch}
+                        git pull origin ${branch}
+                        mv ${artifact_name} .
+                        git add ${artifact_name}
+                        git commit -m "Pushed Nexus artifact ${artifact_name} to GitHub testing branch"
+                        git push origin ${branch}
+                    """
+                }
+            }
+        }
     }
 }
