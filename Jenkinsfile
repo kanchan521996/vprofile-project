@@ -77,10 +77,10 @@ pipeline {
         stage('Upload the artifact to nexus'){
             steps {
                 sh '''
-                mvn -s settings.xml deploy \
-                   -DaltDeploymentRepository=${SNAP_REPO}::default::http://${NEXUSIP}:${NEXUSPORT}/repository/${SNAP_REPO}/ \
-                    -Dnexus.username=${NEXUS_USER} \
-                    -Dnexus.password=${NEXUS_PASS}
+                 mvn -s settings.xml deploy \
+    -DaltDeploymentRepository=${RELEASE_REPO}::default::http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/ \
+    -Dnexus.username=${NEXUS_USER} \
+    -Dnexus.password=${NEXUS_PASS}
                 '''
             }
             post {
