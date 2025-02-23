@@ -26,7 +26,7 @@ pipeline {
             post {
                 success {
                     echo "Now Archiving."
-                    archiveArtifacts artifacts: '**/*.war'  // ✅ `artifact` hota hai, `artifacts` nahi
+                    archiveArtifacts '**/*.war'  // ✅ Corrected
                 }
             }
         }
@@ -55,11 +55,12 @@ pipeline {
 
         stage('Sonar Analysis') {
             environment {
-                scannerHome = tool "${SONARSCANNER}"
+                scannerHome = tool SONARSCANNER
             }
             steps {
-                withSonarQubeEnv("${SONARSERVER}") {
+                withSonarQubeEnv(SONARSERVER) {
                     sh '''
+                        export SONAR_SCANNER_OPTS="--add-opens java.base/java.lang=ALL-UNNAMED"
                         ${scannerHome}/bin/sonar-scanner -X \
                         -Dsonar.projectKey=vprofile \
                         -Dsonar.projectName=vprofile \
@@ -69,7 +70,7 @@ pipeline {
                         -Dsonar.junit.reportsPath=target/surefire-reports/ \
                         -Dsonar.jacoco.reportsPath=target/jacoco.exec \
                         -Dsonar.java.checkstyle.reportPaths=target/checkstyle-result.xml
-                    '''  // ✅ Extra blank line hata diya
+                    '''  // ✅ Fixed export issue and removed extra backslash
                 }
             }
         }
