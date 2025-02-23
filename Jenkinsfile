@@ -74,20 +74,25 @@ pipeline {
                 }
             }
         }
-        stage('Upload the artifact to nexus'){
-            steps {
-                sh '''
-                 mvn -s settings.xml deploy \
-    -DaltDeploymentRepository=${RELEASE_REPO}::default::http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/ \
-    -Dnexus.username=${NEXUS_USER} \
-    -Dnexus.password=${NEXUS_PASS}
-                '''
-            }
-            post {
-                success {
-                     echo "Artifact successfully deployed to Nexus."
-                }
-            }
-        }
+       stage('Upload artifact'){
+        steps{
+                nexusArtifactUploader(
+        nexusVersion: 'nexus3',
+        protocol: 'http',
+        nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+        groupId: 'QA',
+        version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
+        repository: "${RELEASE_REPO}",
+        credentialsId: "${NEXUS_LOGIN}",
+        artifacts: [
+            [artifactId: 'vproapp',
+             classifier: '',
+             file: 'target/vprofile-v2.war',
+             type: 'war']
+        ]
+     )
+     }
+       }
+     
     }
 }
