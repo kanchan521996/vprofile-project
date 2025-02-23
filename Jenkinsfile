@@ -88,31 +88,38 @@ pipeline {
     }
 }
 
-        stage('Upload artifact') {
-            steps {
-                nexusArtifactUploader(
-                    nexusVersion: 'nexus3',
-                    protocol: 'http',
-                    nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
-                    groupId: 'QA',
-                    version: "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}",
-                    repository: "${RELEASE_REPO}",
-                    credentialsId: "${NEXUS_LOGIN}",
-                    artifacts: [
-                        [artifactId: 'vproapp',
-                         classifier: '',
-                         file: 'target/vprofile-v2.war',
-                         type: 'war']
-                    ]
-                )
-            }
+      stage('Upload artifact') {
+    steps {
+        script {
+            def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}".replace(":", "-").replace(" ", "-")
+            def artifact_name = "vproapp-${artifact_version}.war"
+
+            nexusArtifactUploader(
+                nexusVersion: 'nexus3',
+                protocol: 'http',
+                nexusUrl: "${NEXUSIP}:${NEXUSPORT}",
+                groupId: 'QA',
+                version: "${artifact_version}",
+                repository: "${RELEASE_REPO}",
+                credentialsId: "${NEXUS_LOGIN}",
+                artifacts: [
+                    [artifactId: 'vproapp',
+                     classifier: '',
+                     file: 'target/vprofile-v2.war',
+                     type: 'war']
+                ]
+            )
+
+            echo "Artifact uploaded to Nexus: ${artifact_name}"
         }
+    }
+}
 
   stage('Pull Artifact from Nexus & Push to GitHub') {
     steps {
         script {
             // Dynamically generate artifact version (replace colons and spaces with dashes)
-            def artifact_version = "17-25-02-23_08-47" // Replace with dynamic value if needed
+            def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}".replace(":", "-").replace(" ", "-")
             def artifact_name = "vproapp-${artifact_version}.war"
             def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
             def branch = "testing"
