@@ -95,35 +95,35 @@ pipeline {
             }
         }
 
-        stage('Pull Artifact from Nexus & Push to GitHub') {
-            steps {
-                script {
-                    // Dynamically generate artifact version
-                    def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}"
-                    def artifact_name = "vproapp-${artifact_version}.war"
-                    def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
-                    def branch = "testing"
+    stage('Pull Artifact from Nexus & Push to GitHub') {
+    steps {
+        script {
+            // Dynamically generate artifact version (replace colons with dashes)
+            def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}".replace(":", "-")
+            def artifact_name = "vproapp-${artifact_version}.war"
+            def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
+            def branch = "testing"
 
-                    // 1️⃣ Download the artifact from Nexus
-                    sh """
-                        wget --user=${NEXUS_USER} --password=${NEXUS_PASS} \
-                        ${nexus_url} \
-                        -O ${artifact_name}
-                    """
+            // 1️⃣ Download the artifact from Nexus
+            sh """
+                wget --user=${NEXUS_USER} --password=${NEXUS_PASS} \
+                "${nexus_url}" \
+                -O ${artifact_name}
+            """
 
-                    // 2️⃣ Setup Git & Push to GitHub Testing Branch
-                    sh """
-                        git config --global user.email "kanchannath819@gmail.com"
-                        git config --global user.name "nath"
-                        git checkout ${branch}
-                        git pull origin ${branch}
-                        mv ${artifact_name} .
-                        git add ${artifact_name}
-                        git commit -m "Pushed Nexus artifact ${artifact_name} to GitHub testing branch"
-                        git push origin ${branch}
-                    """
-                }
-            }
+            // 2️⃣ Setup Git & Push to GitHub Testing Branch
+            sh """
+                git config --global user.email "kanchannath819@gmail.com"
+                git config --global user.name "nath"
+                git checkout ${branch}
+                git pull origin ${branch}
+                mv ${artifact_name} .
+                git add ${artifact_name}
+                git commit -m "Pushed Nexus artifact ${artifact_name} to GitHub testing branch"
+                git push origin ${branch}
+            """
         }
+    }
+}
     }
 }
