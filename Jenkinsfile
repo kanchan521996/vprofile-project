@@ -103,7 +103,10 @@ stage('Pull Artifact from Nexus & Push to GitHub') {
             def branch = "testing"
 
             // 1️⃣ Download the artifact from Nexus
-            sh "wget --user=${NEXUS_USER} --password=${NEXUS_PASS} -O ${artifact_name} ${nexus_url}"
+            sh "wget --user=${NEXUS_USER} --password=${NEXUS_PASS} \
+"http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/17-25-02-23_08:47/vproapp-17-25-02-23_08:47.war" \
+-O vproapp-17-25-02-23_08:47.war
+"
 
             // 2️⃣ Setup Git & Push to GitHub Testing Branch
             sh """
