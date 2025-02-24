@@ -122,7 +122,7 @@ stage('Pull Artifact from Nexus & Push to GitHub') {
             def artifact_version = "${env.BUILD_ID}-${env.BUILD_TIMESTAMP}".replace(":", "-").replace(" ", "-")
             def artifact_name = "vproapp-${artifact_version}.war"
             def nexus_url = "http://${NEXUSIP}:${NEXUSPORT}/repository/${RELEASE_REPO}/QA/vproapp/${artifact_version}/${artifact_name}"
-            def branch = "testing"
+            def branch = "jenkins-ci"
 
             // Debugging: Print Nexus URL and credentials
             echo "Generated Nexus URL: ${nexus_url}"
