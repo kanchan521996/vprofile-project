@@ -137,7 +137,7 @@ stage('Pull Artifact from Nexus & Push to GitHub') {
             """
 
             // 2️⃣ Setup Git & Push to GitHub Testing Branchs
-            withCredentials([sshUserPrivateKey(credentialsId: 'GitHub-SSH-Key', keyFileVariable: 'SSH_KEY')]) {
+            withCredentials([sshUserPrivateKey(credentialsId: 'gitlogin', keyFileVariable: 'SSH_KEY')]) {
                 sh """
                     git config --global user.email "kanchannath819@gmail.com"
                     git config --global user.name "nath"
