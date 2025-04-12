@@ -14,6 +14,7 @@ pipeline {
         NEXUSPORT = '8081'
         NEXUS_GRP_REPO = 'vpro-maven-group'
         NEXUS_LOGIN = 'nexuslogin'
+        SONARSERVER = 'sonarserver'
     }
     stages {
         stage ("Build"){
@@ -36,6 +37,20 @@ pipeline {
             steps {
                 sh 'mvn -s settings.xml checkstyle:checkstyle'
             }
+        }
+        stage ('Artifact Upload'){
+            steps {
+               nexusArtifactUploader(
+                    
+                    artifacts: [
+                        [artifactId: projectName,
+                        classifier: '',
+                        file: 'my-service-' + version + '.jar',
+                        type: 'jar']
+        ]
+     )
+     
+        }
         }
 
     }
